@@ -1,0 +1,80 @@
+### Health check
+GET http://localhost:3000/health
+
+### Database health
+GET http://localhost:3000/health/database
+
+### Admin login
+POST http://localhost:3000/api/admin/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Admin@2124"
+}
+
+### Check admin session
+GET http://localhost:3000/api/admin/auth/me
+
+### Admin stats
+GET http://localhost:3000/api/admin/stats
+x-admin-api-secret: 0ae51951d8bb4f8a202a6993f601da6c6edafc5fb006253aa0992075cda2625a
+
+### Create a draft draw
+POST http://localhost:3000/api/admin/draws
+Content-Type: application/json
+x-admin-api-secret: 0ae51951d8bb4f8a202a6993f601da6c6edafc5fb006253aa0992075cda2625a
+
+{
+  "drawCode": "TEST-DRAW-001",
+  "drawDateText": "ጥቅምት 15/2018 ዓ.ም",
+  "notes": "Development test only. Not an official draw."
+}
+
+### List draws
+GET http://localhost:3000/api/admin/draws
+x-admin-api-secret: 0ae51951d8bb4f8a202a6993f601da6c6edafc5fb006253aa0992075cda2625a
+
+### Add a prize (replace DRAW_ID)
+POST http://localhost:3000/api/admin/draws/DRAW_ID/prizes
+Content-Type: application/json
+x-admin-api-secret: 0ae51951d8bb4f8a202a6993f601da6c6edafc5fb006253aa0992075cda2625a
+
+{
+  "prizeName": "1ኛ ሽልማት",
+  "winningNumber": "123-4567890",
+  "prizeAmount": "100000.00",
+  "currency": "ETB",
+  "sortOrder": 1
+}
+
+### Verify draw (replace DRAW_ID)
+POST http://localhost:3000/api/admin/draws/DRAW_ID/verify
+x-admin-api-secret: 0ae51951d8bb4f8a202a6993f601da6c6edafc5fb006253aa0992075cda2625a
+
+### Publish draw — matches tickets and notifies winners (replace DRAW_ID)
+POST http://localhost:3000/api/admin/draws/DRAW_ID/publish
+x-admin-api-secret: 0ae51951d8bb4f8a202a6993f601da6c6edafc5fb006253aa0992075cda2625a
+
+### Re-run matching for published draw (replace DRAW_ID)
+POST http://localhost:3000/api/admin/draws/DRAW_ID/match
+x-admin-api-secret: 0ae51951d8bb4f8a202a6993f601da6c6edafc5fb006253aa0992075cda2625a
+
+### List winners (replace DRAW_ID)
+GET http://localhost:3000/api/admin/draws/DRAW_ID/winners
+x-admin-api-secret: 0ae51951d8bb4f8a202a6993f601da6c6edafc5fb006253aa0992075cda2625a
+
+### List tickets
+GET http://localhost:3000/api/admin/tickets?limit=20
+x-admin-api-secret: 0ae51951d8bb4f8a202a6993f601da6c6edafc5fb006253aa0992075cda2625a
+
+### List winners only
+GET http://localhost:3000/api/admin/tickets?winnersOnly=true
+x-admin-api-secret: 0ae51951d8bb4f8a202a6993f601da6c6edafc5fb006253aa0992075cda2625a
+
+### List users
+GET http://localhost:3000/api/admin/users?limit=20
+x-admin-api-secret: 0ae51951d8bb4f8a202a6993f601da6c6edafc5fb006253aa0992075cda2625a
+
+### Admin logout
+POST http://localhost:3000/api/admin/auth/logout

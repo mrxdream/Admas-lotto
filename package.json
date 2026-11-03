@@ -1,0 +1,15 @@
+{
+  "name": "admas-lottery-checker",
+  "version": "1.0.0",
+  "description": "Admas lottery ticket checker — Telegram bot, API, admin panel, worker",
+  "private": true,
+  "scripts": {
+    "dev:api": "npm run dev --prefix apps/api",
+    "dev:bot": "npm run dev --prefix apps/bot",
+    "dev:admin": "npm run dev --prefix apps/admin",
+    "start:worker": "npm start --prefix apps/worker",
+    "db:migrate": "npm exec --prefix apps/api -- prisma migrate deploy",
+    "db:generate": "npm exec --prefix apps/api -- prisma generate"
+  },
+  "license": "ISC"
+}
