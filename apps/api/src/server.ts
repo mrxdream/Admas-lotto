@@ -346,26 +346,22 @@ const adminDrawAuth = (
   res: express.Response,
   next: express.NextFunction,
 ) => {
-  const expectedSecret = process.env.ADMIN_API_SECRET;
-  const suppliedSecret = req.header("x-admin-api-secret");
-
-  if (!expectedSecret) {
-    return res.status(503).json({
-      error: "Admin API is not configured",
-    });
-  }
-
+  // Browser admin panel: session cookie after login
   if (req.session.adminAuthenticated) {
     return next();
   }
 
-  if (suppliedSecret !== expectedSecret) {
-    return res.status(401).json({
-      error: "Unauthorized",
-    });
+  // Optional machine access via shared secret (scripts / tools)
+  const expectedSecret = process.env.ADMIN_API_SECRET;
+  const suppliedSecret = req.header("x-admin-api-secret");
+
+  if (expectedSecret && suppliedSecret && suppliedSecret === expectedSecret) {
+    return next();
   }
 
-  return next();
+  return res.status(401).json({
+    error: "Unauthorized",
+  });
 };
 
 // All routes below require the admin secret.
