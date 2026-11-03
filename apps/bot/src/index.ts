@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { createServer } from "node:http";
 import { Bot, InlineKeyboard, Keyboard } from "grammy";
 
 const token = process.env.BOT_TOKEN;
@@ -1008,3 +1009,16 @@ bot.catch((error) => {
 
 bot.start();
 console.log("Admas Telegram bot is running.");
+
+/**
+ * Render Web Services require an open HTTP port.
+ * The bot uses Telegram long-polling; this tiny server only
+ * satisfies health checks so the deploy stays alive.
+ */
+const healthPort = Number(process.env.PORT) || 8080;
+createServer((_req, res) => {
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({ status: "ok", service: "admas-bot" }));
+}).listen(healthPort, () => {
+  console.log(`Bot health server listening on port ${healthPort}`);
+});
