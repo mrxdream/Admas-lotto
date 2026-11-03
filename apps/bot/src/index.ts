@@ -1007,9 +1007,6 @@ bot.catch((error) => {
   console.error("Telegram bot error:", error);
 });
 
-bot.start();
-console.log("Admas Telegram bot is running.");
-
 /**
  * Render Web Services require an open HTTP port.
  * The bot uses Telegram long-polling; this tiny server only
@@ -1021,4 +1018,24 @@ createServer((_req, res) => {
   res.end(JSON.stringify({ status: "ok", service: "admas-bot" }));
 }).listen(healthPort, () => {
   console.log(`Bot health server listening on port ${healthPort}`);
+});
+
+async function main() {
+  // Ensure no webhook is set so long-polling works after deploys
+  try {
+    await bot.api.deleteWebhook({ drop_pending_updates: false });
+  } catch (error) {
+    console.warn("deleteWebhook warning:", error);
+  }
+
+  await bot.start({
+    onStart: (info) => {
+      console.log(`Admas Telegram bot is running as @${info.username}`);
+    },
+  });
+}
+
+main().catch((error) => {
+  console.error("Bot failed to start:", error);
+  process.exit(1);
 });
