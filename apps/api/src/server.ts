@@ -10,6 +10,8 @@ const app = express();
 const port = Number(process.env.PORT) || 3000;
 
 const isProd = process.env.NODE_ENV === "production";
+// Vercel admin + Render API are different sites → need cross-site cookies
+const crossSiteCookies = isProd || process.env.CROSS_SITE_COOKIES === "true";
 
 /** Admin frontends allowed to call the API with cookies */
 const allowedOrigins = [
@@ -22,16 +24,17 @@ const allowedOrigins = [
     : []),
 ];
 
+// Render sits behind a proxy — required for secure cookies over HTTPS
+app.set("trust proxy", 1);
+
 app.use(
   helmet({
-    // Allow admin to load API screenshot images / credentials flow
     crossOriginResourcePolicy: { policy: "cross-origin" },
   }),
 );
 app.use(
   cors({
     origin(origin, callback) {
-      // Allow non-browser clients (bot, curl) with no Origin header
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, origin ?? true);
         return;
@@ -52,12 +55,14 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
       httpOnly: true,
-      // Cross-site admin (Vercel) → API (Render) needs Secure + SameSite=None
-      secure: isProd,
-      sameSite: isProd ? "none" : "lax",
+      // Cross-site (vercel.app → onrender.com) requires Secure + SameSite=None
+      secure: crossSiteCookies,
+      sameSite: crossSiteCookies ? "none" : "lax",
       maxAge: 8 * 60 * 60 * 1000,
+      path: "/",
     },
   }),
 );
