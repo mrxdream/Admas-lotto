@@ -9,13 +9,35 @@ import { timingSafeEqual } from "node:crypto";
 const app = express();
 const port = Number(process.env.PORT) || 3000;
 
-app.use(helmet());
+const isProd = process.env.NODE_ENV === "production";
+
+/** Admin frontends allowed to call the API with cookies */
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://admas-lotto.vercel.app",
+  ...(process.env.ADMIN_ORIGIN
+    ? process.env.ADMIN_ORIGIN.split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : []),
+];
+
+app.use(
+  helmet({
+    // Allow admin to load API screenshot images / credentials flow
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://admas-lotto.onrender.com", // your real Vercel URL
-    ],
+    origin(origin, callback) {
+      // Allow non-browser clients (bot, curl) with no Origin header
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, origin ?? true);
+        return;
+      }
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   }),
 );
@@ -32,8 +54,9 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false, // Local HTTP development only
-      sameSite: "lax",
+      // Cross-site admin (Vercel) → API (Render) needs Secure + SameSite=None
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       maxAge: 8 * 60 * 60 * 1000,
     },
   }),
