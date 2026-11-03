@@ -69,7 +69,7 @@ type Draw = {
   prizes: number;
 };
 
-const initialDraws: Draw[] = [];
+
 type ApiDraw = {
   id: string;
   drawCode: string;
